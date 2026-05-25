@@ -1,4 +1,3 @@
-from click import prompt
 import streamlit as st
 from Backend.LLM import to_AI
 
@@ -67,14 +66,29 @@ class Page1:
         self.create_message()
         self.display_messages()
 
+        chat_col, tree_col = st.columns([7.5,1], border= False)
 
-        st.markdown("""
-                    <div class="chat">
-                    {}
-                    </div>
-                    """.format(self.display_text), unsafe_allow_html=True)
-            
+        with chat_col:
+            st.markdown("""
+                        <div class="chat">
+                        {}
+                        </div>
+                        """.format(self.display_text), unsafe_allow_html=True)
+        with tree_col:
+            with st.container(height="stretch", border = False): # Placeholder for the chat tree visualization
+                st.markdown("""
+                            <div class="tree">
+                            <p style="text-align: center; font-size: 18px; color: #4CAF50;">
+                            Chat Tree
+                            </p>
+                            <p style="text-align: center;
+                            """, unsafe_allow_html=True)
+            with st.container(height=90, border = False, vertical_alignment="bottom"): # Placeholder for the chat tree visualization
+                st.button("Branch\n⌥",
+                       disabled=True)
+                
 
+        
     def sidebar(self):
         st.sidebar.title("Sidebar")
         st.sidebar.write("This is the sidebar content.")

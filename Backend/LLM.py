@@ -1,5 +1,4 @@
 # Take a text and output a simple response
-
 from groq import Groq
 import os
 from dotenv import load_dotenv
