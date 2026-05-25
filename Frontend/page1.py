@@ -1,5 +1,6 @@
 import streamlit as st
 from Backend.LLM import to_AI
+from Backend.chat_tree import render_chat_tree
 
 st.set_page_config(page_title="AI chatbot", page_icon=":robot:", layout="wide")
 
@@ -36,9 +37,43 @@ class Page1:
 
         self.prompt:str = st.chat_input("Ask me anything...")
 
+        if "chat_tree_dict" not in st.session_state:
+            st.session_state.chat_tree_dict = [] # Placeholder for the chat tree data structure
+        if "parent_id" not in st.session_state:
+            st.session_state.parent_id = None
+
+        if "latest_id" not in st.session_state:
+            st.session_state.latest_id = 0
+
+        if "new_line" not in st.session_state:
+            st.session_state.new_line = False
+        # {"id": 1, "parent_id": None, "user": "Root User 1 (Blue)", "text": "This is the first main topic."},
+
     def create_message(self):
-        if self.prompt: #if someone writes a prompt, return placeholder
+        if self.prompt: # if someone write a prompt chatgpt oss respond
             st.session_state["messages"].append({"role": "User", "content": self.prompt})
+
+            # Add the message to the chat tree
+            if st.session_state.new_line == False: # If there is no prompt to create a child from the previous parent
+                st.session_state.chat_tree_dict.append({"id": st.session_state.latest_id,
+                                            "parent_id" : None,
+                                            "content": f"{self.prompt[:10]}..."})
+                st.session_state.latest_id += 1
+                st.session_state.parent_id = None
+            elif st.session_state.new_line == True and st.session_state.parent_id == None: # if there is an instruction to create a new_line
+            # but this must be when and only when the parent id is fasle 
+                # first create the new parent Id from the last known Id
+                st.session_state.parent_id = st.session_state.latest_id - 1
+                st.session_state.chat_tree_dict.append({"id": st.session_state.latest_id,
+                            "parent_id" : st.session_state.parent_id,
+                            "content": f"{self.prompt[:10]}..."})
+                st.session_state.latest_id += 1
+            elif st.session_state.new_line == True and st.session_state.parent_id:
+                st.session_state.chat_tree_dict.append({"id": st.session_state.latest_id,
+                            "parent_id" : st.session_state.parent_id,
+                            "content": f"{self.prompt[:10]}..."})
+                st.session_state.latest_id += 1
+                
             to_AI_response = to_AI(self.prompt)
             st.session_state["messages"].append({"role": "AI", "content": to_AI_response})
 
@@ -53,7 +88,7 @@ class Page1:
                     <hr style="border-top: 3px solid green;">"""
 
     def render(self):
-        # The main content of the page
+    # The main content of the page
         st.write("""<div
                  style="
                  font-size: 14px;
@@ -75,20 +110,28 @@ class Page1:
                         </div>
                         """.format(self.display_text), unsafe_allow_html=True)
         with tree_col:
-            with st.container(height="stretch", border = False): # Placeholder for the chat tree visualization
-                st.markdown("""
-                            <div class="tree">
-                            <p style="text-align: center; font-size: 18px; color: #4CAF50;">
-                            Chat Tree
-                            </p>
-                            <p style="text-align: center;
-                            """, unsafe_allow_html=True)
+            with st.container(height = "stretch", border = False):
+                st.markdown(
+                    """
+                    <div class="tree">
+                    <p style="text-align: left; font-size: 18px; color: #4CAF50;">
+                    Chat Tree
+                    </p>
+                    <p style="text-align: center;
+                    """,
+                 unsafe_allow_html= True)
+            with st.container(height="content", border = False): # Placeholder for the chat tree visualization
+                chat_tree_css = render_chat_tree(st.session_state.chat_tree_dict)
+                print(st.session_state.chat_tree_dict)
+                st.html(chat_tree_css)
             with st.container(height=90, border = False, vertical_alignment="bottom"): # Placeholder for the chat tree visualization
-                st.button("Branch\n⌥",
-                       disabled=True)
-                
+                self.is_branched = st.toggle(label=":green-background[Branch ⌥]")
 
-        
+                if self.is_branched:
+                    st.session_state.new_line = True
+                else:
+                    st.session_state.new_line = False
+
     def sidebar(self):
         st.sidebar.title("Sidebar")
         st.sidebar.write("This is the sidebar content.")
