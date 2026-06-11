@@ -29,13 +29,11 @@ def to_AI(message = ""):
         except Exception as e:
             return "Sorry, AI cannot be reached at this moment. Check internet connection."
 
-
-
 def prompt_engine(prompt, session_messages, is_branching=False):
     # Combine the prompt with the session messages to create a context for the AI
     context = ""
     branch = ""
-    recent_message_count = 5
+    recent_message_count = 8 
     max_parent_id = None
     for message in session_messages[:-1][::-1]:
         max_parent_id = max([m["id"] for m in session_messages if m["parent_id"] is None], default=-1)
@@ -49,7 +47,7 @@ def prompt_engine(prompt, session_messages, is_branching=False):
     for message in session_messages:
         if message["id"] == max_parent_id:
             branch += f"\n{message['role']}: {message['content']}"  
-
+    print (context)
     if is_branching:
         full_prompt = "The following is a conversation between a user and you. Use the context: \"" + context + "\" \n as a guide to respond to the prompt: \"" + prompt + "\". The conversation starts at here: \"" + branch + "\"\n Keep your response concise and relevant to the prompt, not more than two paragraphs."
     else:

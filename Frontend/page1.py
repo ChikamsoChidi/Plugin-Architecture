@@ -63,7 +63,7 @@ class Page1:
                 
                 st.session_state.chat_tree_dict.append({"id": id,
                                             "parent_id" : parent_id,
-                                            "content": f"{self.prompt[:30]}..."}) 
+                                            "content": f"{self.prompt[:30].strip() + "..." if len(self.prompt) > 30 else self.prompt}"}) 
                 st.session_state.latest_id += 1
                 st.session_state.parent_id = None
             elif st.session_state.new_line == True and st.session_state.parent_id == None: # if there is an instruction to create a new_line
@@ -76,7 +76,7 @@ class Page1:
 
                 st.session_state.chat_tree_dict.append({"id": id,
                             "parent_id" : parent_id,
-                            "content": f"{self.prompt[:10]}..."})
+                            "content": f"{self.prompt[:30].strip() + "..." if len(self.prompt) > 30 else self.prompt}"})
                 st.session_state.latest_id += 1
             elif st.session_state.new_line == True and st.session_state.parent_id:
                 # If there is an instruction for a new line and a chat already exists
@@ -86,7 +86,7 @@ class Page1:
 
                 st.session_state.chat_tree_dict.append({"id": id,
                             "parent_id" : parent_id,
-                            "content": f"{self.prompt[:10]}..."})
+                            "content": f"{self.prompt[:30].strip() + "..." if len(self.prompt) > 30 else self.prompt}"})
                 st.session_state.latest_id += 1
 
             st.session_state["messages"].append({"id":id, "parent_id":parent_id, "role": "User", "content": self.prompt})
