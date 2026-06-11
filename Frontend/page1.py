@@ -63,7 +63,7 @@ class Page1:
                 
                 st.session_state.chat_tree_dict.append({"id": id,
                                             "parent_id" : parent_id,
-                                            "content": f"{self.prompt[:10]}..."}) 
+                                            "content": f"{self.prompt[:30]}..."}) 
                 st.session_state.latest_id += 1
                 st.session_state.parent_id = None
             elif st.session_state.new_line == True and st.session_state.parent_id == None: # if there is an instruction to create a new_line
@@ -122,38 +122,32 @@ class Page1:
         self.create_message()
         self.display_messages()
 
-        chat_col, tree_col = st.columns([7.5,1], border= False)
+        st.markdown("""
+                    <div class="chat">
+                    {}
+                    </div>
+                    """.format(self.display_text), unsafe_allow_html=True)
+        self.sidebar()
 
-        with chat_col:
-            st.markdown("""
-                        <div class="chat">
-                        {}
-                        </div>
-                        """.format(self.display_text), unsafe_allow_html=True)
-        with tree_col:
-            with st.container(height = "stretch", border = False):
+    def sidebar(self):
+        with st.sidebar:
+            with st.container(height = "content", border = False):
                 st.markdown(
                     """
                     <div class="tree">
-                    <p style="text-align: left; font-size: 18px; color: #4CAF50;">
+                    <p style="text-align: left; font-size: 22px; color: #4CAF50;">
                     Chat Tree
                     </p>
                     <p style="text-align: center;
                     """,
-                 unsafe_allow_html= True)
+                    unsafe_allow_html= True)
             with st.container(height="content", border = False): # Placeholder for the chat tree visualization
                 chat_tree_css = render_chat_tree(st.session_state.chat_tree_dict)
                 st.html(chat_tree_css)
-            with st.container(height=90, border = False, vertical_alignment="bottom"): # Placeholder for the chat tree visualization
+            with st.container(height="content", border = False, vertical_alignment="bottom"): # Placeholder for the chat tree visualization
                 self.is_branched = st.toggle(label=":green-background[Branch ⌥]")
 
                 if self.is_branched:
                     st.session_state.new_line = True
                 else:
                     st.session_state.new_line = False
-                    
-
-    def sidebar(self):
-        st.sidebar.title("Sidebar")
-        st.sidebar.write("This is the sidebar content.")
-

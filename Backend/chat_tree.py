@@ -1,10 +1,3 @@
-# input be like 
-messages = [{'id': 0, 'parent_id': None, 'content': 'Hello...'},
-{'id': 1, 'parent_id': None, 'content': 'I want to ...'},
-{'id': 2, 'parent_id': 1, 'content': 'Tell me wh...'},
-{'id': 3, 'parent_id': 1, 'content': 'why? Tell ...'},
-{'id': 4, 'parent_id': None, 'content': 'forget abo...'}]
-
 def render_chat_tree(messages):
     # 1. Initialize the string with the base CSS styles
     css_style = """
@@ -86,6 +79,6 @@ def render_chat_tree(messages):
                 </div>
                 """
                 
-    # 4. Return the entire block of CSS + HTML text
+    # Return the entire block of CSS + HTML text
     return css_style
 
