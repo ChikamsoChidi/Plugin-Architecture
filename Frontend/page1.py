@@ -1,9 +1,8 @@
 import streamlit as st
-from Backend.LLM import to_AI
+from Backend.LLM import *
 from Backend.chat_tree import render_chat_tree
 
 st.set_page_config(page_title="AI chatbot", page_icon=":robot:", layout="wide")
-
 
 class Page1:
     def __init__(self): # This the main page of the app
@@ -51,6 +50,7 @@ class Page1:
 
     def create_message(self):
         if self.prompt: # if someone write a prompt chatgpt oss respond
+
             st.session_state["messages"].append({"role": "User", "content": self.prompt})
 
             # Add the message to the chat tree
@@ -58,10 +58,11 @@ class Page1:
                 st.session_state.chat_tree_dict.append({"id": st.session_state.latest_id,
                                             "parent_id" : None,
                                             "content": f"{self.prompt[:10]}..."})
+                
                 st.session_state.latest_id += 1
                 st.session_state.parent_id = None
             elif st.session_state.new_line == True and st.session_state.parent_id == None: # if there is an instruction to create a new_line
-            # but this must be when and only when the parent id is fasle 
+            # but this must be when and only when the parent id is false 
                 # first create the new parent Id from the last known Id
                 st.session_state.parent_id = st.session_state.latest_id - 1
                 st.session_state.chat_tree_dict.append({"id": st.session_state.latest_id,
@@ -69,11 +70,16 @@ class Page1:
                             "content": f"{self.prompt[:10]}..."})
                 st.session_state.latest_id += 1
             elif st.session_state.new_line == True and st.session_state.parent_id:
+                # If there is an instruction for a new line and a chat already exists
+                self.prompt = self.prompt + " (Branch from: " + st.session_state.chat_tree_dict[st.session_state.parent_id]["content"] + ")"
                 st.session_state.chat_tree_dict.append({"id": st.session_state.latest_id,
                             "parent_id" : st.session_state.parent_id,
                             "content": f"{self.prompt[:10]}..."})
                 st.session_state.latest_id += 1
+
+            self.prompt = prompt_engine(self.prompt, st.session_state["messages"])
                 
+            # take only the parent id prompts and use them as history when creating new message to create chain of inference
             to_AI_response = to_AI(self.prompt)
             st.session_state["messages"].append({"role": "AI", "content": to_AI_response})
 
@@ -84,9 +90,10 @@ class Page1:
                 if message["role"] == "User":
                     self.display_text += f"""<p style="text-align: right;">{message["role"]}:<br>{message["content"]}</p> """
                 elif message["role"] == "AI":
-                    self.display_text += f"""<p>{message["role"]}:<br>{message["content"]}</p> 
+                    self.display_text += f"""<p>{message["role"]}:<br>{message["content"]}</p>
                     <hr style="border-top: 3px solid green;">"""
-
+        print(st.session_state["messages"])
+        
     def render(self):
     # The main content of the page
         st.write("""<div
@@ -122,7 +129,6 @@ class Page1:
                  unsafe_allow_html= True)
             with st.container(height="content", border = False): # Placeholder for the chat tree visualization
                 chat_tree_css = render_chat_tree(st.session_state.chat_tree_dict)
-                print(st.session_state.chat_tree_dict)
                 st.html(chat_tree_css)
             with st.container(height=90, border = False, vertical_alignment="bottom"): # Placeholder for the chat tree visualization
                 self.is_branched = st.toggle(label=":green-background[Branch ⌥]")
