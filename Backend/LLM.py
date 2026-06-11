@@ -31,9 +31,27 @@ def to_AI(message = ""):
 
 
 
-def prompt_engine(prompt, session_messages):
+def prompt_engine(prompt, session_messages, is_branching=False):
     # Combine the prompt with the session messages to create a context for the AI
-    context = "\n".join([f"{msg['role']}: {msg['content']}" for msg in session_messages[-5:]])  # Use the last 5 messages for context
-    full_prompt = "The following is a conversation between a user and you. Use the context \"" + context + "\"as a guide to respond to the prompt \"" + prompt + "\". Keep your response concise and relevant to the prompt, not more than two paragraphs."
+    context = ""
+    branch = ""
+    recent_message_count = 5
+    max_parent_id = None
+    for message in session_messages[:-1][::-1]:
+        max_parent_id = max([m["id"] for m in session_messages if m["parent_id"] is None], default=-1)
+        if is_branching and message["parent_id"] == max_parent_id:
+            context += f"\n{message['role']}: {message['content']}"
+        elif not is_branching and message["parent_id"] is None:
+            context += f"\n{message['role']}: {message['content']}"
+        recent_message_count -= 1
+        if recent_message_count <= 0:
+            break
+    for message in session_messages:
+        if message["id"] == max_parent_id:
+            branch += f"\n{message['role']}: {message['content']}"  
+
+    if is_branching:
+        full_prompt = "The following is a conversation between a user and you. Use the context: \"" + context + "\" \n as a guide to respond to the prompt: \"" + prompt + "\". The conversation starts at here: \"" + branch + "\"\n Keep your response concise and relevant to the prompt, not more than two paragraphs."
+    else:
+        full_prompt = "The following is a conversation between a user and you. Use the context: \"" + context + "\" \n as a guide to respond to the prompt: \"" + prompt + "\". Keep your response concise and relevant to the prompt, not more than two paragraphs."
     return full_prompt
-    

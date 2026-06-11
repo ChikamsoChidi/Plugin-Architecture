@@ -36,6 +36,7 @@ class Page1:
 
         self.prompt:str = st.chat_input("Ask me anything...")
 
+
         if "chat_tree_dict" not in st.session_state:
             st.session_state.chat_tree_dict = [] # Placeholder for the chat tree data structure
         if "parent_id" not in st.session_state:
@@ -51,37 +52,50 @@ class Page1:
     def create_message(self):
         if self.prompt: # if someone write a prompt chatgpt oss respond
 
-            st.session_state["messages"].append({"role": "User", "content": self.prompt})
+            # Placeholder: !!!!! May cause errors
+            id = st.session_state.latest_id
+            parent_id = st.session_state.parent_id
 
             # Add the message to the chat tree
             if st.session_state.new_line == False: # If there is no prompt to create a child from the previous parent
-                st.session_state.chat_tree_dict.append({"id": st.session_state.latest_id,
-                                            "parent_id" : None,
-                                            "content": f"{self.prompt[:10]}..."})
+                parent_id = None
+                id = st.session_state.latest_id
                 
+                st.session_state.chat_tree_dict.append({"id": id,
+                                            "parent_id" : parent_id,
+                                            "content": f"{self.prompt[:10]}..."}) 
                 st.session_state.latest_id += 1
                 st.session_state.parent_id = None
             elif st.session_state.new_line == True and st.session_state.parent_id == None: # if there is an instruction to create a new_line
             # but this must be when and only when the parent id is false 
                 # first create the new parent Id from the last known Id
                 st.session_state.parent_id = st.session_state.latest_id - 1
-                st.session_state.chat_tree_dict.append({"id": st.session_state.latest_id,
-                            "parent_id" : st.session_state.parent_id,
+
+                parent_id = st.session_state.parent_id
+                id = st.session_state.latest_id
+
+                st.session_state.chat_tree_dict.append({"id": id,
+                            "parent_id" : parent_id,
                             "content": f"{self.prompt[:10]}..."})
                 st.session_state.latest_id += 1
             elif st.session_state.new_line == True and st.session_state.parent_id:
                 # If there is an instruction for a new line and a chat already exists
-                self.prompt = self.prompt + " (Branch from: " + st.session_state.chat_tree_dict[st.session_state.parent_id]["content"] + ")"
-                st.session_state.chat_tree_dict.append({"id": st.session_state.latest_id,
-                            "parent_id" : st.session_state.parent_id,
+
+                parent_id = st.session_state.parent_id
+                id = st.session_state.latest_id
+
+                st.session_state.chat_tree_dict.append({"id": id,
+                            "parent_id" : parent_id,
                             "content": f"{self.prompt[:10]}..."})
                 st.session_state.latest_id += 1
 
-            self.prompt = prompt_engine(self.prompt, st.session_state["messages"])
+            st.session_state["messages"].append({"id":id, "parent_id":parent_id, "role": "User", "content": self.prompt})
+
+            self.prompt = prompt_engine(self.prompt, st.session_state["messages"], is_branching=st.session_state.new_line)
                 
             # take only the parent id prompts and use them as history when creating new message to create chain of inference
             to_AI_response = to_AI(self.prompt)
-            st.session_state["messages"].append({"role": "AI", "content": to_AI_response})
+            st.session_state["messages"].append({"id":id, "parent_id":parent_id, "role": "AI", "content": to_AI_response})
 
     def display_messages(self):
         self.display_text = ""
@@ -92,7 +106,7 @@ class Page1:
                 elif message["role"] == "AI":
                     self.display_text += f"""<p>{message["role"]}:<br>{message["content"]}</p>
                     <hr style="border-top: 3px solid green;">"""
-        print(st.session_state["messages"])
+        #print(st.session_state["messages"])
         
     def render(self):
     # The main content of the page
@@ -137,6 +151,7 @@ class Page1:
                     st.session_state.new_line = True
                 else:
                     st.session_state.new_line = False
+                    
 
     def sidebar(self):
         st.sidebar.title("Sidebar")
