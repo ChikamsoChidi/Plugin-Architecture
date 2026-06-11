@@ -57,7 +57,16 @@ class Page1:
             parent_id = st.session_state.parent_id
 
             # Add the message to the chat tree
-            if st.session_state.new_line == False: # If there is no prompt to create a child from the previous parent
+            if st.session_state.new_line == False and st.session_state.parent_id == None: # If there is no prompt to create a child and there is no parent, meaning that this is a new chat or a continuation of the main line
+                parent_id = None
+                id = st.session_state.latest_id
+                
+                st.session_state.chat_tree_dict.append({"id": id,
+                                            "parent_id" : parent_id,
+                                            "content": f"{self.prompt[:30].strip() + "..." if len(self.prompt) > 30 else self.prompt}"}) 
+                st.session_state.latest_id += 1
+                st.session_state.parent_id = None
+            elif st.session_state.new_line == False and st.session_state.parent_id: # if there is no prompt to create a child but there is a parent id, this means the user has toggled off the branching option and wants to continue the main line of conversation
                 parent_id = None
                 id = st.session_state.latest_id
                 
