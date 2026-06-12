@@ -116,20 +116,20 @@ class Page1:
         
     def sidebar(self):
         with st.sidebar:
-            with st.container(height = "content", border = False):
+            with st.container(height = 50, border = False):
                 st.markdown(
                     """
                     <div class="tree">
-                    <p style="text-align: left; font-size: 22px; color: #4CAF50;">
+                    <p style="text-align: left; font-size: 22px; color: #4CAF50; margin-bottom: 0;">
                     Chat Tree
                     </p>
-                    <p style="text-align: center;
+                    </div>
                     """,
                     unsafe_allow_html= True)
-            with st.container(height="content", border = False): # Placeholder for the chat tree visualization
+            with st.container(height=400, border = False): # Placeholder for the chat tree visualization
                 chat_tree_css = render_chat_tree(st.session_state.chat_tree_dict)
                 st.html(chat_tree_css)
-            with st.container(height="content", border = False, vertical_alignment="bottom"): # Placeholder for the chat tree visualization
+            with st.container(height="content", border = False, vertical_alignment="top"): # Placeholder for the branch button
                 self.is_branched = st.toggle(label=":green-background[Branch ⌥]")
 
                 if self.is_branched:
