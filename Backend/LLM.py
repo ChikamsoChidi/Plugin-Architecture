@@ -33,15 +33,17 @@ def prompt_engine(prompt, session_messages, is_branching=False):
     # Combine the prompt with the session messages to create a context for the AI
     context = ""
     branch = ""
-    recent_message_count = 10
+    recent_message_count = 6
+
     max_parent_id = None
     for message in session_messages[:-1][::-1]:
         max_parent_id = max([m["id"] for m in session_messages if m["parent_id"] is None], default=-1)
         if is_branching and message["parent_id"] == max_parent_id: #gather the messages in a branch and use as context
             context = f"\n{message['role']}: {message['content']}" + context
+            recent_message_count -= 1
         elif not is_branching and message["parent_id"] is None: # gather the messages on the the main and use as conext
             context = f"\n{message['role']}: {message['content']}" + context
-        recent_message_count -= 1
+            recent_message_count -= 1
         if recent_message_count <= 0:
             break
     for message in session_messages:
