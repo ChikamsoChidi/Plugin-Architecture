@@ -7,8 +7,9 @@ def render_chat_tree(messages):
                 display: flex;
                 flex-direction: column;
                 justify-content: flex-end;
-                min-height: 70vh; /* Takes up most of the page height to push items down */
                 width: 100%;
+                height: 75vh;
+                overflow-y: auto;
             }
             
             .main-bubble {
@@ -52,7 +53,7 @@ def render_chat_tree(messages):
             }
         </style>
         
-        <div class="chat-wrapper">
+        <div id="chat-tree-container" class="chat-wrapper">
     """
 
     # 2. Get the main nodes and sub nodes
@@ -79,6 +80,19 @@ def render_chat_tree(messages):
                 </div>
                 """
                 
+
+    css_style += """
+        </div>
+        <script>
+            (function() {
+                const container = document.getElementById('chat-tree-container');
+                if (container) {
+                    container.scrollTop = container.scrollHeight;
+                }
+            })();
+        </script>
+    """
+
     # Return the entire block of CSS + HTML text
     return css_style
 
