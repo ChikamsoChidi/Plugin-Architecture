@@ -66,7 +66,7 @@ class Page1:
                                             "content": f"{self.prompt[:30].strip() + "..." if len(self.prompt) > 30 else self.prompt}"}) 
                 st.session_state.latest_id += 1
                 st.session_state.parent_id = None
-            elif st.session_state.new_line == False and st.session_state.parent_id: # if there is no prompt to create a child but there is a parent id, this means the user has toggled off the branching option and wants to continue the main line of conversation
+            elif st.session_state.new_line == False and st.session_state.parent_id >= 0: # if there is no prompt to create a child but there is a parent id, this means the user has toggled off the branching option and wants to continue the main line of conversation
                 parent_id = None
                 id = st.session_state.latest_id
                 
@@ -75,9 +75,7 @@ class Page1:
                                             "content": f"{self.prompt[:30].strip() + "..." if len(self.prompt) > 30 else self.prompt}"}) 
                 st.session_state.latest_id += 1
                 st.session_state.parent_id = None
-            elif st.session_state.new_line == True and st.session_state.parent_id == None: # if there is an instruction to create a new_line
-            # but this must be when and only when the parent id is false 
-                # first create the new parent Id from the last known Id
+            elif st.session_state.new_line == True and st.session_state.parent_id == None: # if there is an instruction to create a child but there is no parent id, meaning that the user has toggled on the branching
                 st.session_state.parent_id = st.session_state.latest_id - 1
 
                 parent_id = st.session_state.parent_id
@@ -87,12 +85,10 @@ class Page1:
                             "parent_id" : parent_id,
                             "content": f"{self.prompt[:30].strip() + "..." if len(self.prompt) > 30 else self.prompt}"})
                 st.session_state.latest_id += 1
-            elif st.session_state.new_line == True and st.session_state.parent_id:
-                # If there is an instruction for a new line and a chat already exists
-
+            elif st.session_state.new_line == True and st.session_state.parent_id >= 0:
+                # If there is an instruction for a new line and a chat already exists, meaning the branching is activated and the chat wants to continue on that branch
                 parent_id = st.session_state.parent_id
                 id = st.session_state.latest_id
-
                 st.session_state.chat_tree_dict.append({"id": id,
                             "parent_id" : parent_id,
                             "content": f"{self.prompt[:30].strip() + "..." if len(self.prompt) > 30 else self.prompt}"})
@@ -105,6 +101,7 @@ class Page1:
             # take only the parent id prompts and use them as history when creating new message to create chain of inference
             to_AI_response = to_AI(self.prompt)
             st.session_state["messages"].append({"id":id, "parent_id":parent_id, "role": "AI", "content": to_AI_response})
+           
 
     def display_messages(self):
         self.display_text = ""
@@ -115,29 +112,8 @@ class Page1:
                 elif message["role"] == "AI":
                     self.display_text += f"""<p>{message["role"]}:<br>{message["content"]}</p>
                     <hr style="border-top: 3px solid green;">"""
-        #print(st.session_state["messages"])
+
         
-    def render(self):
-    # The main content of the page
-        st.write("""<div
-                 style="
-                 font-size: 14px;
-                 text-align: center;
-                 font-family: 'Courier New', monospace;
-                 color: #FFFFFF;
-                 ">
-                 It is in your hands...
-                 <div/>""", unsafe_allow_html=True)
-        self.create_message()
-        self.display_messages()
-
-        st.markdown("""
-                    <div class="chat">
-                    {}
-                    </div>
-                    """.format(self.display_text), unsafe_allow_html=True)
-        self.sidebar()
-
     def sidebar(self):
         with st.sidebar:
             with st.container(height = "content", border = False):
@@ -160,3 +136,24 @@ class Page1:
                     st.session_state.new_line = True
                 else:
                     st.session_state.new_line = False
+
+    def render(self):
+    # The main content of the page
+        st.write("""<div
+                 style="
+                 font-size: 14px;
+                 text-align: center;
+                 font-family: 'Courier New', monospace;
+                 color: #FFFFFF;
+                 ">
+                 It is in your hands...
+                 <div/>""", unsafe_allow_html=True)
+        self.create_message()
+        self.display_messages()
+        self.sidebar()
+        st.markdown("""
+                    <div class="chat">
+                    {}
+                    </div>
+                    """.format(self.display_text), unsafe_allow_html=True)
+        
