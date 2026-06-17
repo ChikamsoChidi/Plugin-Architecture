@@ -6,5 +6,6 @@ if "Frontend.page1" in sys.modules:
 
 from Frontend.page1 import Page1
 
+# render the application
 page = Page1()
 page.render()

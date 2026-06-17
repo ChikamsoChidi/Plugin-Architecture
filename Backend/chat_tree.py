@@ -1,56 +1,57 @@
-def render_chat_tree(messages):
-    # 1. Initialize the string with the base CSS styles
-    css_style = """
+def render_chat_tree(messages, primary_color, background_color, secondary_background_color, text_color):
+
+    # Initialize the string with the base CSS styles using the external variables
+    css_style = f"""
         <style>
             /* Master Wrapper that fills the viewport and forces items to the bottom */
-            .chat-wrapper {
+            .chat-wrapper {{
                 display: flex;
                 flex-direction: column;
                 justify-content: flex-end;
                 width: 100%;
-                height: 75vh;
+                
                 overflow-y: auto;
-            }
+            }}
             
-            .main-bubble {
-                background-color: #cefad0;
-                border-left: 5px solid #4CAF50;
+            .main-bubble {{
+                background-color: {secondary_background_color};
+                border-left: 5px solid {primary_color};
                 padding: 15px;
                 border-radius: 8px;
                 margin-top: 15px;
                 margin-bottom: 10px;
-                box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            }
-            .reply-container {
+                box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            }}
+            .reply-container {{
                 display: flex;
                 margin-left: 25px;
                 margin-bottom: 8px;
-                border-left: 2px dashed #4CAF50;
+                border-left: 2px dashed {primary_color};
                 padding-left: 20px;
-            }
-            .reply-bubble {
-                background-color: #ffffff;
-                border: 1px solid #e2e8f0;
+            }}
+            .reply-bubble {{
+                background-color: {background_color};
+                border: 1px solid {secondary_background_color};
                 padding: 12px;
                 border-radius: 8px;
                 width: 100%;
-                box-shadow: 0 1px 2px rgba(0,0,0,0.02);
-            }
-            .bubble-text {
-                color: #1e293b;
+                box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            }}
+            .bubble-text {{
+                color: {text_color};
                 font-family: sans-serif;
                 font-size: 14px;
                 margin: 0;
                 line-height: 1.5;
-            }
-            .bubble-label {
+            }}
+            .bubble-label {{
                 font-size: 11px;
-                color: #4CAF50;
+                color: {primary_color};
                 font-weight: bold;
                 text-transform: uppercase;
                 margin-bottom: 4px;
                 font-family: sans-serif;
-            }
+            }}
         </style>
         
         <div id="chat-tree-container" class="chat-wrapper">
@@ -95,4 +96,3 @@ def render_chat_tree(messages):
 
     # Return the entire block of CSS + HTML text
     return css_style
-

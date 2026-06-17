@@ -1,4 +1,5 @@
 Backend/.env
 Backend/__pycache__
 Frontend/__pycache__
+Themes/__pycache__
 main2.py
