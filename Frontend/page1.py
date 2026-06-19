@@ -115,7 +115,11 @@ class Page1:
                 
             # take only the parent id prompts and use them as history when creating new message to create chain of inference
             to_AI_response = to_AI(self.prompt)
-            st.session_state["messages"].append({"id":id, "parent_id":parent_id, "role": "AI", "content": to_AI_response})
+            st.session_state["messages"].append(
+                {"id":id,
+                 "parent_id":parent_id,
+                 "role": "AI",
+                 "content": to_AI_response})
            
 
     def display_messages(self):
