@@ -110,11 +110,10 @@ class Page1:
                 st.session_state.latest_id += 1
 
             st.session_state["messages"].append({"id":id, "parent_id":parent_id, "role": "User", "content": self.prompt})
+            
+            # Ask the AI the prompt
+            to_AI_response = to_AI(self.prompt, st.session_state["messages"], is_branching=st.session_state.new_line)
 
-            self.prompt = prompt_engine(self.prompt, st.session_state["messages"], is_branching=st.session_state.new_line)
-                
-            # take only the parent id prompts and use them as history when creating new message to create chain of inference
-            to_AI_response = to_AI(self.prompt)
             st.session_state["messages"].append(
                 {"id":id,
                  "parent_id":parent_id,
