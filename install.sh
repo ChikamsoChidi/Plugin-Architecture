@@ -1,5 +1,5 @@
 # download ollama for windows 
 irm https://ollama.com | iex
 
-# download llama3.2:1b
+# pull the 1 billion parameter model
 ollama run llama3.2:1b
