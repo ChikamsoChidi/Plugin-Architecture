@@ -127,9 +127,13 @@ class Page1:
         if "messages" in st.session_state:
             for message in st.session_state["messages"]:
                 if message["role"] == "User":
-                    self.display_text += f"""<p style="text-align: right;">{message["role"]}:<br>{message["content"]}</p> """
+                    self.display_text += f"""<p style="text-align: right;">
+                    {message["role"]}:<br> {message["content"]}
+                    </p>"""
                 elif message["role"] == "AI":
-                    self.display_text += f"""<p>{message["role"]}:<br>{message["content"]}</p>
+                    self.display_text += f"""<p>
+                    {message["role"]}:<br> {message["content"]}
+                    </p>
                     <hr style="border-top: 3px solid {self.primary_color};">"""
 
     def update_theme_callback(self):
